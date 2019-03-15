@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "首页233",
+  "usingComponents": {
+    "van-button": "/static/vant/button/index"
+  }
+}
