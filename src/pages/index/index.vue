@@ -1,135 +1,103 @@
 <template>
-  <div>
-    <div class="userinfo" @click="bindViewTap">
-      <img class="userinfo-avatar" v-if="userInfo.avatarUrl" :src="userInfo.avatarUrl" background-size="cover" />
-      <img class="userinfo-avatar" src="/static/images/user.png" background-size="cover" />
-
-      <div class="userinfo-nickname">
-        <card :text="userInfo.nickName"></card>
+  <div class="page-home">
+    <div class="userinfo">
+      <div class="userinfo_avatar">
+        <image :src="wxUserInfo.avatarUrl" />
       </div>
-    </div>
-
-    <van-button type="info">默认按钮</van-button>
-
-    <button class="wx-button">哈哈</button>
-
-    <div class="usermotto">
-      <div class="user-motto">
-        <card :text="motto"></card>
+      <div class="userinfo_name">
+        {{wxUserInfo.nickName}}
       </div>
-    </div>
-
-    <a href="/pages/counter/main" class="counter">去往Vuex示例页面{{count}}</a>
-
-    <div class="all">
-        <div class="left">
-        </div>
-        <div class="right">
-        </div>
     </div>
   </div>
 </template>
 
 <script>
-import card from '@/components/card'
+import api from '@/api'
 import store from '@/store'
+import { checkLogin } from '@/utils'
+import { showToast, getStorage, wxDelay } from '@/utils/wx-utils'
 
 export default {
-  computed: {
-    count () {
-      return store.state.count
-    }
-  },
   data () {
-    return {
-      motto: 'Hello miniprograme',
-      userInfo: {
-        nickName: 'mpvue',
-        avatarUrl: 'http://mpvue.com/assets/logo.png'
-      }
-    }
+    return {}
   },
 
-  components: {
-    card
+  computed: {
+    wxUserInfo () {
+      return store.state.wxUserInfo
+    }
   },
 
   methods: {
-    bindViewTap () {
-      const url = '../logs/main'
-      if (mpvuePlatform === 'wx') {
-        mpvue.switchTab({ url })
-      } else {
-        mpvue.navigateTo({ url })
-      }
+    async getWxUserInfo () {
+      const { userInfo } = await wx.getUserInfoPro()
+      store.commit('setWxUserInfo', userInfo)
     },
-    clickHandle (ev) {
-      console.log('clickHandle:', ev)
-      // throw {message: 'custom test'}
+    async getUserInfo () {
+      const token = getStorage('__wxt__')
+      const userInfoRes = await api.common.getUserInfo({ token })
+      const code = userInfoRes.code
+      const userInfo = userInfoRes.data
+      if (code === '000000') {
+        store.commit('setUserInfo', userInfo)
+        // if (!userInfo.mobile) {
+        //   showToast('请先绑定手机号')
+        //   wxDelay('redirectTo', 1500, {
+        //     url: '/pages/bind-phone/main'
+        //   })
+        // }
+      } else {
+        showToast(userInfoRes.message || '用户信息请求异常')
+      }
     }
   },
 
-  created () {
-    // let app = getApp()
+  async mounted () {
+    await this.getWxUserInfo()
+    // 登陆检测
+    if (checkLogin()) {
+      this.getUserInfo()
+    } else {
+      showToast('您还未登录，请先登录')
+      wxDelay('redirectTo', 1500, {
+        url: '/pages/login/main'
+      })
+    }
   }
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
+.page-home {
+  position: relative;
+  height: 100vh;
+  background: url("https://kano.guahao.cn/d6969281824") no-repeat;
+  background-size: 100% 100%;
+  overflow: hidden;
+}
 .wx-button {
   display: inline-block;
   width: 500rpx;
   height: 128rpx;
   line-height: 128rpx;
 }
-.userinfo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+
+.userinfo_avatar {
+  width: 200rpx;
+  height: 200rpx;
+  margin: 140rpx auto 0 auto;
+  border-radius: 200rpx;
+  overflow: hidden;
+  image {
+    width: 100%;
+    height: 100%;
+  }
 }
 
-.userinfo-avatar {
-  width: 128rpx;
-  height: 128rpx;
-  margin: 20rpx;
-  border-radius: 50%;
+.userinfo_name {
+  text-align: center;
+  color: #fff;
+  margin: 30rpx 0;
 }
 
-.userinfo-nickname {
-  color: #aaa;
-}
-
-.usermotto {
-  margin-top: 150px;
-}
-
-.form-control {
-  display: block;
-  padding: 0 12px;
-  margin-bottom: 5px;
-  border: 1px solid #ccc;
-}
-.all{
-  width:7.5rem;
-  height:1rem;
-  background-color:blue;
-}
-.all:after{
-  display:block;
-  content:'';
-  clear:both;
-}
-.left{
-  float:left;
-  width:3rem;
-  height:1rem;
-  background-color:red;
-}
-
-.right{
-  float:left;
-  width:4.5rem;
-  height:1rem;
-  background-color:green;
-}
 </style>

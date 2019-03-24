@@ -1,3 +1,26 @@
+import { getStorage } from './wx-utils'
+
+// 检测是否登陆
+export const checkLogin = () => {
+  const __wxt__ = getStorage('__wxt__')
+  return !!__wxt__
+}
+
+// 将微信回调式的api改为promise
+export const wxPromisefy = wxFn => {
+  return opts => {
+    return new Promise((resolve, reject) => {
+      wxFn(Object.assign(opts || {}, {
+        success: resolve,
+        fail: err => {
+          console.log(err)
+          reject(err)
+        }
+      }))
+    })
+  }
+}
+
 function formatNumber (n) {
   const str = n.toString()
   return str[1] ? str : `0${str}`
