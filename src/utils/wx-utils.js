@@ -46,6 +46,20 @@ export const hideLoading = delay => {
   }
 }
 
+/**
+ * 函数柯里化
+ * @param {*} fn 函数
+ * @param {*} bindArgs 预设参数
+ */
+export const curry = function (fn, bindArgs = []) {
+  return function curryCb () {
+    const args = bindArgs.concat([].slice.call(arguments))
+    return fn.length === args.length
+      ? fn.apply(null, args)
+      : curry(fn, args)
+  }
+}
+
 const isFn = function (v) {
   return typeof v === 'function'
 }
@@ -62,31 +76,18 @@ const isFn = function (v) {
  *  url: '/pages/login/main'
  * })
  */
-export const wxDelay = function (method, delay) {
+export const wxDelay = curry(function (method, delay, params) {
   const wxFn = wx[method]
   if (!isFn(wxFn)) {
     console.warn(`WARN: wx对象上不存在方法${method}`)
     return
   }
-  if (arguments.length > 2) {
-    const args = Array.prototype.slice.call(arguments, 2)
-    if (delay) {
-      setTimeout(() => {
-        wxFn(...args)
-      }, delay)
-    } else {
-      wxFn(...args)
-    }
-    return
+  const args = [].slice.call(arguments, 2)
+  if (delay) {
+    setTimeout(() => {
+      wxFn.apply(null, args)
+    }, delay)
+  } else {
+    wxFn.apply(null, args)
   }
-  return function delayFn () {
-    const args = arguments
-    if (delay) {
-      setTimeout(() => {
-        wxFn(...args)
-      }, delay)
-    } else {
-      wxFn(...args)
-    }
-  }
-}
+})

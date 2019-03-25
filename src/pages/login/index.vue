@@ -46,7 +46,7 @@ export default {
       store.commit('setWxUserInfo', userInfo)
       const data = {
         token,
-        userInfo
+        userInfo: Object.assign({ mobile: '' }, userInfo)
       }
       await api.common.saveUserInfo(data)
       console.log('success: 同步微信用户信息成功')

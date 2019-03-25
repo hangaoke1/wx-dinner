@@ -25,8 +25,8 @@ const requestInterceptors = opts => {
 const responseInterceptors = (res, opts) => {
   // token过期 有问题
   if (res.data.code === INVALID_TOKEN) {
-    // setStorage(TOKEN_KEY, '')
-    setStorage('ooo', 123)
+    setStorage(TOKEN_KEY, '')
+    setStorage('clearToken', '1')
   }
   return res.data
 }
