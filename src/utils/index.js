@@ -6,6 +6,12 @@ export const checkLogin = () => {
   return !!__wxt__
 }
 
+// 检测是否授权
+export const checkAuth = async () => {
+  const authRes = await wx.getSettingPro()
+  return !!authRes.authSetting['scope.userInfo']
+}
+
 // 将微信回调式的api改为promise
 export const wxPromisefy = wxFn => {
   return opts => {
