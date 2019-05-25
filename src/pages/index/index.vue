@@ -53,23 +53,27 @@ export default {
   },
 
   async mounted () {
-    const hasAuth = await checkAuth()
-    if (!hasAuth) {
-      showToast('您还未授权')
-      wxDelay('redirectTo', 1500, {
-        url: '/pages/login/main'
-      })
-      return
-    }
-    await this.getWxUserInfo()
-    // 登陆检测
-    if (checkLogin()) {
-      this.getUserInfo()
-    } else {
-      showToast('您还未登录，请先登录')
-      wxDelay('redirectTo', 1500, {
-        url: '/pages/login/main'
-      })
+    try {
+      const hasAuth = await checkAuth()
+      if (!hasAuth) {
+        showToast('您还未授权')
+        wxDelay('redirectTo', 1500, {
+          url: '/pages/login/main'
+        })
+        return
+      }
+      await this.getWxUserInfo()
+      // 登陆检测
+      if (checkLogin()) {
+        this.getUserInfo()
+      } else {
+        showToast('您还未登录，请先登录')
+        wxDelay('redirectTo', 1500, {
+          url: '/pages/login/main'
+        })
+      }
+    } catch (err) {
+      console.error(err)
     }
   }
 }

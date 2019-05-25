@@ -8,7 +8,7 @@ import wxAPI from '@/api/wx-api'
 export const login = function (data) {
   return wxAPI({
     url: '/login',
-    method: 'get',
+    method: 'post',
     data
   }).then(response => {
     return response
@@ -23,7 +23,7 @@ export const login = function (data) {
 export const getUserInfo = function (data) {
   return wxAPI({
     url: '/getUserInfo',
-    method: 'get',
+    method: 'post',
     data
   }).then(response => {
     return response

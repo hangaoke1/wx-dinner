@@ -38,7 +38,7 @@ export default {
   },
   methods: {
     goHome () {
-      console.log(this.vfcode, this.phone)
+      // 假验证码
       if (+this.vfcode === 123456) {
         showToast('绑定成功')
         wx.switchTab({

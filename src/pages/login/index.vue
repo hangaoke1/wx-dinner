@@ -52,18 +52,27 @@ export default {
       console.log('success: 同步微信用户信息成功')
     },
     async login (code) {
-      const res = await api.common.login({ code })
-      const data = res.data
-      wx.setStorageSync('__wxt__', data.token)
-      // 同步用户信息
-      await this.syncUserInfo()
-      hideLoading()
-      // 判断手机号绑定
-      if (!data.mobile) {
-        showToast('请先绑定手机号')
-        wxDelay('redirectTo', 1500, {
-          url: '/pages/bind-phone/main'
-        })
+      try {
+        const res = await api.common.login({ code })
+        const data = res.data
+        if (!data) {
+          throw new Error(res.message)
+        }
+        wx.setStorageSync('__wxt__', data.token)
+        // 同步用户信息
+        await this.syncUserInfo()
+        hideLoading()
+        // 判断手机号绑定
+        if (!data.mobile) {
+          showToast('请先绑定手机号')
+          wxDelay('redirectTo', 1500, {
+            url: '/pages/bind-phone/main'
+          })
+        }
+      } catch (err) {
+        console.error(err)
+        hideLoading()
+        showToast(err.message)
       }
     }
   }
